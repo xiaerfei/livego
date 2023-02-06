@@ -2,10 +2,11 @@ package cache
 
 import (
 	"bytes"
-	"log"
 
 	"github.com/gwuhaolin/livego/av"
 	"github.com/gwuhaolin/livego/protocol/amf"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -42,5 +43,8 @@ func (specialCache *SpecialCache) Send(w av.WriteCloser) error {
 	if !specialCache.full {
 		return nil
 	}
-	return w.Write(specialCache.p)
+
+	// demux in hls will change p.Data, only send a copy here
+	newPacket := *specialCache.p
+	return w.Write(&newPacket)
 }
